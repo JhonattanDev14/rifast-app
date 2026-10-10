@@ -1,9 +1,8 @@
 import { Pressable, Text, TextInput, View } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Plus, Search, Settings } from "lucide-react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { alert } from "@/utils/alert";
-import Toast from "react-native-toast-message";
 
 // UI
 import CreateVentaForm from "@/components/forms/CreateVentaForm";
@@ -27,38 +26,48 @@ import type { Venta } from "@/types/venta";
 
 export default function TalonarioScreen() {
     const { id } = useLocalSearchParams();
-    
-    const talonario = getTalonarioById(Number(id));
-    
-    const finalizada = talonario
-    ? new Date(talonario.fecha).getTime() < new Date().getTime()
-    : false;
-    
-    const [ventas, setVentas] = useState(getVentas(Number(id)));
+
+    const [talonario, setTalonario] = useState(
+        () => getTalonarioById(Number(id))
+    );
+
+    const [ventas, setVentas] = useState(() => getVentas(Number(id)));
     const [busqueda, setBusqueda] = useState("");
     const [ventaSeleccionada, setVentaSeleccionada] =
-    useState<Venta | null>(null);
+        useState<Venta | null>(null);
     const [estados, setEstados] = useState(getEstadosVenta());
-    
+
     const [modal, setModal] = useState<{
         title: string;
         content: React.ReactNode;
     } | null>(null);
-    
+
+    useFocusEffect(
+        useCallback(() => {
+            setTalonario(getTalonarioById(Number(id)));
+            setVentas(getVentas(Number(id)));
+            setEstados(getEstadosVenta());
+        }, [id])
+    );
+
+    const finalizada = talonario
+        ? new Date(talonario.fecha).getTime() < Date.now()
+        : false;
+
     const ventasFiltradas = ventas.filter((venta) => {
         const texto = busqueda.toLowerCase();
-        
+
         return (
             venta.comprador.toLowerCase().includes(texto) ||
             venta.numeros.toLowerCase().includes(texto)
         );
     });
-    
+
     return (
         <>
+        <View className="bg-[#171A1F] flex-1 pt-4">
             <RifaHeader talonario={talonario} />
-
-            <View className="mb-2 flex-row items-center gap-3 p-3">
+            <View className="mb-2 flex-row items-center gap-3 p-3 ">
                 <Pressable
                     disabled={finalizada}
                     onPress={() =>
@@ -116,12 +125,12 @@ export default function TalonarioScreen() {
                             content: (
                                 <RifaOptionsMenu
                                     onStatsPress={() => {
-                                        router.push(
-                                            `/talonario/stats/${id}`
-                                        );
+                                        router.push(`/talonario/stats/${id}`);
+                                        setModal(null);
                                     }}
                                     onDrawPress={() => {
-                                        // abrir sorteo
+                                        router.push(`/talonario/sorteo/${id}`);
+                                        setModal(null);
                                     }}
                                 />
                             ),
@@ -168,10 +177,7 @@ export default function TalonarioScreen() {
                                                     data
                                                 );
 
-                                                setVentas(
-                                                    getVentas(Number(id))
-                                                );
-
+                                                setVentas(getVentas(Number(id)));
                                                 setModal(null);
 
                                                 alert.success(
@@ -207,8 +213,7 @@ export default function TalonarioScreen() {
                     }}
                 />
             </View>
-
-            <Toast />
+        </View>
         </>
     );
 }

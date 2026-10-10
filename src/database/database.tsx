@@ -4,11 +4,12 @@ export const db = SQLite.openDatabaseSync('rifast.db');
 
 db.execSync(`
   CREATE TABLE IF NOT EXISTS talonarios (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    precio INTEGER NOT NULL,
-    cantidad_numeros INTEGER NOT NULL,
-    fecha TEXT NOT NULL
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      nombre TEXT NOT NULL,
+      precio INTEGER NOT NULL,
+      cantidad_numeros INTEGER NOT NULL,
+      cantidad_ganadores INTEGER NOT NULL,
+      fecha TEXT NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS estados (
@@ -36,6 +37,16 @@ db.execSync(`
     FOREIGN KEY (venta_id) REFERENCES ventas(id),
     UNIQUE (talonario_id, numero)
   );
+
+  CREATE TABLE IF NOT EXISTS sorteos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      talonario_id INTEGER NOT NULL,
+      numero INTEGER NOT NULL,
+      fecha TEXT NOT NULL,
+      UNIQUE (talonario_id, numero),
+      FOREIGN KEY (talonario_id) REFERENCES talonarios(id)
+  );
+  
 `);
 
 db.execSync(`

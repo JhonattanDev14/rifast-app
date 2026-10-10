@@ -26,7 +26,7 @@ export default function AppModal({
         onPress={onClose}
       >
         <Pressable
-          className="w-full rounded-3xl bg-[#1E2229] p-6"
+          className="w-full max-h-[85%] rounded-3xl bg-[#1E2229] p-6"
           onPress={(e) => e.stopPropagation()}
         >
           <View className="flex-row items-center justify-between">
@@ -43,7 +43,9 @@ export default function AppModal({
             className="mt-6"
             keyboardShouldPersistTaps="always"
           >
-            {children}
+            <View onStartShouldSetResponder={() => true}>
+              {children}
+            </View>
           </ScrollView>
         </Pressable>
       </Pressable>

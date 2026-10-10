@@ -1,10 +1,11 @@
 
 import { Plus } from 'lucide-react-native';
-import { useState } from 'react';
-import { Pressable, Text, View, ScrollView } from 'react-native';
+import { Pressable, Text, ScrollView } from 'react-native';
 import CreateTalonarioForm from '@/components/forms/CreateTalonarioForm';
 import TalonarioList from "../components/list/talonarioList";
 import AppModal from '@/components/ui/AppModal';
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
     createTalonario,
     updateTalonario,
@@ -18,6 +19,11 @@ export default function Dashboard() {
     const [modalVisible, setModalVisible] = useState(false);
     const [talonarios, setTalonarios] = useState(getTalonarios());
     const [talonarioSeleccionado, setTalonarioSeleccionado] = useState<Talonario | null>(null);
+    useFocusEffect(
+        useCallback(() => {
+            setTalonarios(getTalonarios());
+        }, [])
+    );
   return (
     <ScrollView className="flex-1 bg-[#171A1F] px-6 pt-16" keyboardShouldPersistTaps="always">
       <Text className="text-3xl font-bold text-white">
@@ -59,17 +65,25 @@ export default function Dashboard() {
             <CreateTalonarioForm
                 talonario={talonarioSeleccionado}
                 onSubmit={(data) => {
-                if (talonarioSeleccionado) {
-                    updateTalonario(talonarioSeleccionado.id, data);
-                    alert.success('Talonario actualizado',100)
-                } else {
-                    createTalonario(data);
-                    alert.success('Talonario creado',100);
-                }
+                    try {
+                        if (talonarioSeleccionado) {
+                            updateTalonario(talonarioSeleccionado.id, data);
+                            alert.success('Talonario actualizado', 100);
+                        } else {
+                            createTalonario(data);
+                            alert.success('Talonario creado', 100);
+                        }
 
-                setTalonarios(getTalonarios());
-                setModalVisible(false);
-            }}
+                        setTalonarios(getTalonarios());
+                        setModalVisible(false);
+                    } catch (error) {
+                        alert.error(
+                            error instanceof Error
+                                ? error.message
+                                : 'No se pudo guardar el talonario.'
+                        );
+                    }
+                }}
             />
         </AppModal>
     </ScrollView>

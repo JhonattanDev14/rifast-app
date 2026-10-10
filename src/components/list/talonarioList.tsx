@@ -34,7 +34,8 @@ export default function TalonarioList({
     return (
         <>
             {talonarios.map((talonario) => {
-                const fechaFinal = new Date(talonario.fecha);
+                const [año, mes, dia] = talonario.fecha.slice(0, 10).split("-").map(Number);
+                const fechaFinal = new Date(año, mes - 1, dia);
                 const hoy = new Date();
 
                 const diferencia =

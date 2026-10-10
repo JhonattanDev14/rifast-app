@@ -34,10 +34,14 @@ export default function CreateTalonarioForm({
     nombre : '',
     precio : 0,
     cantidad : 0,
+    ganadores: 1,
     fecha : '',
   }
 });
   const fecha = watch('fecha');
+  const finalizada = talonario
+    ? new Date(talonario.fecha).getTime() < Date.now()
+    : false;
 
   useEffect(() => {
   if (talonario) {
@@ -45,11 +49,16 @@ export default function CreateTalonarioForm({
       nombre: talonario.nombre,
       precio: talonario.precio,
       cantidad: talonario.cantidad_numeros,
+      ganadores: talonario.cantidad_ganadores,
       fecha: talonario.fecha,
     });
   }
 }, [talonario, reset]);
-
+console.log({
+    talonario,
+    fecha: talonario?.fecha,
+    finalizada,
+});
   return (
   <View>
     <View>
@@ -64,6 +73,7 @@ export default function CreateTalonarioForm({
           <TextInput
             value={value}
             onChangeText={onChange}
+            editable={!finalizada}
             placeholder="Ej. Rifa de Navidad"
             placeholderTextColor="#6B7280"
             className={`rounded-xl px-4 py-4 text-white ${
@@ -93,6 +103,7 @@ export default function CreateTalonarioForm({
           <TextInput
             value={value ? String(value) : ''}
             onChangeText={(text) => onChange(Number(text))}
+            editable={!finalizada}
             placeholder="Ej. 10000"
             placeholderTextColor="#6B7280"
             keyboardType="numeric"
@@ -123,6 +134,7 @@ export default function CreateTalonarioForm({
           <TextInput
             value={value ? String(value) : ''}
             onChangeText={(text) => onChange(Number(text))}
+            editable={!talonario}
             placeholder="Ej. 1000"
             placeholderTextColor="#6B7280"
             keyboardType="numeric"
@@ -143,16 +155,51 @@ export default function CreateTalonarioForm({
 
     <View className="mt-4">
       <Text className="mb-2 text-sm font-medium text-gray-300">
+        Cantidad de ganadores
+      </Text>
+
+      <Controller
+        control={control}
+        name="ganadores"
+        render={({ field: { value, onChange } }) => (
+          <TextInput
+            value={value ? String(value) : ''}
+            onChangeText={(text) => onChange(Number(text))}
+            editable={!talonario}
+            placeholder="Ej. 3"
+            placeholderTextColor="#6B7280"
+            keyboardType="numeric"
+            className={`rounded-xl px-4 py-4 text-white ${
+              errors.ganadores
+                ? 'border border-red-500 bg-[#171A1F]'
+                : 'bg-[#171A1F]'
+            }`}
+          />
+        )}
+      />
+
+      {errors.ganadores && (
+        <Text className="mt-1 text-sm text-red-500">
+          {errors.ganadores.message}
+        </Text>
+      )}
+    </View>
+
+    <View className="mt-4">
+      <Text className="mb-2 text-sm font-medium text-gray-300">
         Fecha
       </Text>
 
       <Pressable
-    onPress={() => setShowDatePicker(true)}
-    className={`rounded-xl px-4 py-4 text-white ${
-      errors.fecha
-        ? 'border border-red-500 bg-[#171A1F]'
-        : 'bg-[#171A1F]'
-    }`}
+        disabled={finalizada}
+        onPress={() => setShowDatePicker(true)}
+        className={`rounded-xl px-4 py-4 ${
+            finalizada
+                ? 'bg-[#171A1F] opacity-50'
+                : errors.fecha
+                    ? 'border border-red-500 bg-[#171A1F]'
+                    : 'bg-[#171A1F]'
+        }`}
     >
         <Text className="text-white">
             {fecha || 'Selecciona una fecha'}
@@ -162,6 +209,7 @@ export default function CreateTalonarioForm({
         {showDatePicker && (
         <DateTimePicker
             value={new Date()}
+            disabled={finalizada}
             onValueChange={(event, selectedDate) => {
                 if (selectedDate) {
                 const year = selectedDate.getUTCFullYear();
@@ -173,6 +221,7 @@ export default function CreateTalonarioForm({
 
                 setShowDatePicker(false);
             }}
+            onDismiss={() => setShowDatePicker(false)}
             mode="date"
             presentation="dialog"
         />
@@ -183,22 +232,22 @@ export default function CreateTalonarioForm({
           </Text>
         )}
     </View>
-    <Pressable
-        onPress={() => {
-          Keyboard.dismiss();
-
-          handleSubmit((data) => {
-            onSubmit(data);
-            alert.success('');
-            reset();
-          })();
-        }}
-        className="mt-6 rounded-2xl bg-[#4F7CFF] py-4"
+    {!finalizada && (
+      <Pressable
+          onPress={() => {
+              Keyboard.dismiss();
+              handleSubmit((data) => {
+                  onSubmit(data);
+                  reset();
+              })();
+          }}
+          className="mt-6 rounded-2xl bg-[#4F7CFF] py-4"
       >
-        <Text className="text-center font-bold text-white">
-            Guardar
-        </Text>
-    </Pressable>
+          <Text className="text-center font-bold text-white">
+              Guardar
+          </Text>
+      </Pressable>
+  )}
   </View>
 );
 

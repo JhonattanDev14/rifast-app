@@ -10,7 +10,13 @@ import {
     deleteNumerosByVentaId,
     getTalonarioCantidadNumeros,
     getTalonarioStats as getTalonarioStatsRepository,
+    getNumerosParaSorteo,
+    getNumerosSorteados,
+    insertSorteo,
+    getTalonarioCantidadGanadores,
+    getGanadoresSorteo
 } from "../repositories/ventaRepository";
+
 
 function validarNumeroDeTalonario(
     talonarioId: number,
@@ -22,15 +28,21 @@ function validarNumeroDeTalonario(
         throw new Error("El talonario no existe.");
     }
 
+    if (new Date(talonario.fecha).getTime() < Date.now()) {
+        throw new Error("No puedes modificar ventas de una rifa finalizada.");
+    }
+
     const numeroInvalido = numeros.find(
         (numero) => numero < 1 || numero > talonario.cantidad_numeros
     );
 
     if (numeroInvalido !== undefined) {
         throw new Error(
-            `El número ${numeroInvalido} no es válido. El talonario tiene ${talonario.cantidad_numeros} numeros`
+            `El número ${numeroInvalido} no es válido. El talonario tiene ${talonario.cantidad_numeros} números.`
         );
     }
+
+    return talonario;
 }
 
 export function createVenta(
@@ -118,3 +130,49 @@ export function getTalonarioStats(talonarioId: number) {
     return getTalonarioStatsRepository(talonarioId);
 }
 
+export function getCandidatosSorteo(talonarioId: number) {
+    const numerosValidos = getNumerosParaSorteo(talonarioId);
+    const numerosSorteados = getNumerosSorteados(talonarioId);
+
+    const sorteados = new Set(
+        numerosSorteados.map((item) => item.numero)
+    );
+
+    return numerosValidos.filter(
+        (item) => !sorteados.has(item.numero)
+    );
+}
+
+export function sortearNumero(talonarioId: number) {
+    const candidatos = getCandidatosSorteo(talonarioId);
+    const cantidadGanadores = getTalonarioCantidadGanadores(talonarioId);
+
+    if (!cantidadGanadores) {
+        throw new Error("El talonario no existe.");
+    }
+
+    const ganadoresActuales = getNumerosSorteados(talonarioId);
+
+    if (ganadoresActuales.length >= cantidadGanadores.cantidad_ganadores) {
+        throw new Error("La cantidad de ganadores ya está completa.");
+    }
+
+    if (candidatos.length === 0) {
+        throw new Error("No hay números disponibles para sortear");
+    }
+
+    const indice = Math.floor(Math.random() * candidatos.length);
+    const ganador = candidatos[indice];
+
+    insertSorteo(
+        talonarioId,
+        ganador.numero,
+        new Date().toISOString()
+    );
+
+    return ganador;
+}
+
+export function getGanadores(talonarioId: number) {
+    return getGanadoresSorteo(talonarioId);
+}

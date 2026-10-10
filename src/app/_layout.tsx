@@ -7,6 +7,7 @@ import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import Toast from 'react-native-toast-message';
+import { alert } from '@/utils/alert';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -15,13 +16,13 @@ export default function RootLayout() {
 
     return (
         <ThemeProvider
-            value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
+        value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
         >
             <AnimatedSplashOverlay />
 
             <Stack
                 screenOptions={{
-                    animation: 'fade',
+                    animation: 'none',
                 }}
             >
                 <Stack.Screen
@@ -42,6 +43,13 @@ export default function RootLayout() {
                     name="talonario/stats/[id]"
                     options={{
                         title: 'Estadísticas',
+                    }}
+                />
+
+                <Stack.Screen
+                    name="talonario/sorteo/[id]"
+                    options={{
+                        title: 'Sorteo',
                     }}
                 />
             </Stack>

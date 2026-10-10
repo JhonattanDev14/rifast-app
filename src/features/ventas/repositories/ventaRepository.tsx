@@ -105,8 +105,11 @@ export function deleteNumerosByVentaId(ventaId: number) {
 }
 
 export function getTalonarioCantidadNumeros(talonarioId: number) {
-    return db.getFirstSync<{ cantidad_numeros: number }>(
-        `SELECT cantidad_numeros
+    return db.getFirstSync<{
+        cantidad_numeros: number;
+        fecha: string;
+    }>(
+        `SELECT cantidad_numeros, fecha
          FROM talonarios
          WHERE id = ?`,
         [talonarioId]
@@ -181,6 +184,88 @@ export function getTalonarioStats(talonarioId: number) {
         WHERE t.id = ?
 
         GROUP BY t.id
+        `,
+        [talonarioId]
+    );
+}
+
+export function getNumerosParaSorteo(talonarioId: number) {
+    return db.getAllSync<{
+        numero: number;
+        venta_id: number;
+        comprador: string;
+        telefono: number;
+    }>(
+        `
+        SELECT
+            numeros.numero,
+            ventas.id AS venta_id,
+            ventas.comprador,
+            ventas.telefono
+        FROM numeros
+        INNER JOIN ventas
+            ON ventas.id = numeros.venta_id
+        INNER JOIN estados
+            ON estados.id = ventas.estado_id
+        WHERE numeros.talonario_id = ?
+        AND estados.nombre = 'Validado'
+        `,
+        [talonarioId]
+    );
+}
+
+export function getNumerosSorteados(talonarioId: number) {
+    return db.getAllSync<{ numero: number }>(
+        `SELECT numero
+         FROM sorteos
+         WHERE talonario_id = ?`,
+        [talonarioId]
+    );
+}
+
+export function insertSorteo(
+    talonarioId: number,
+    numero: number,
+    fecha: string
+) {
+    db.runSync(
+        `INSERT INTO sorteos
+         (talonario_id, numero, fecha)
+         VALUES (?, ?, ?)`,
+        [talonarioId, numero, fecha]
+    );
+}
+
+export function getTalonarioCantidadGanadores(talonarioId: number) {
+    return db.getFirstSync<{ cantidad_ganadores: number }>(
+        `SELECT cantidad_ganadores
+         FROM talonarios
+         WHERE id = ?`,
+        [talonarioId]
+    );
+}
+
+export function getGanadoresSorteo(talonarioId: number) {
+    return db.getAllSync<{
+        numero: number;
+        comprador: string;
+        telefono: number;
+        fecha: string;
+    }>(
+        `
+        SELECT
+            sorteos.numero,
+            ventas.comprador,
+            ventas.telefono,
+            sorteos.fecha
+        FROM sorteos
+        INNER JOIN numeros
+            ON numeros.talonario_id = sorteos.talonario_id
+            AND numeros.numero = sorteos.numero
+        INNER JOIN ventas
+            ON ventas.id = numeros.venta_id
+        WHERE sorteos.talonario_id = ?
+        ORDER BY sorteos.id ASC
         `,
         [talonarioId]
     );
