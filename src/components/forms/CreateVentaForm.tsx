@@ -11,7 +11,7 @@ import { ventaSchema, type VentaInput } from "@/schemas/ventaSchema";
 type CreateVentaFormProps = {
   venta: Venta | null;
   estados: { id: number; nombre: string }[];
-  onSubmit: (data: VentaInput) => void;
+  onSubmit: (data: VentaInput) => boolean;
   disabled: boolean;
 };
 

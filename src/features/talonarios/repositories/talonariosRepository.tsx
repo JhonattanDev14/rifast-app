@@ -25,6 +25,7 @@ export function getTalonarios() {
         nombre: string;
         precio: number;
         cantidad_numeros: number;
+        cantidad_ganadores: number;
         fecha: string;
     }>(
         'SELECT * FROM talonarios ORDER BY id DESC'

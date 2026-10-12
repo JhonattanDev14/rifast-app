@@ -27,7 +27,7 @@ export default function SorteoScreen() {
         {
             numero: number;
             comprador: string;
-            telefono: number;
+            telefono: string;
             fecha: string;
         }[]
     >([]);
@@ -35,7 +35,7 @@ export default function SorteoScreen() {
     const [ganador, setGanador] = useState<{
         numero: number;
         comprador: string;
-        telefono: number;
+        telefono: string;
     } | null>(null);
 
     const [cantidadParticipantes, setCantidadParticipantes] = useState(0);

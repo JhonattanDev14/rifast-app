@@ -5,7 +5,7 @@ import { Trophy, MessageCircle } from "lucide-react-native";
 type Ganador = {
     numero: number;
     comprador: string;
-    telefono: number;
+    telefono: string;
 };
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 
 export default function GanadoresContent({ ganadores }: Props) {
 
-    const abrirWhatsApp = (telefono: number) => {
+    const abrirWhatsApp = (telefono: string) => {
         const numero = String(telefono).replace(/\D/g, "");
         const numeroWhatsApp = numero.startsWith("57")
             ? numero

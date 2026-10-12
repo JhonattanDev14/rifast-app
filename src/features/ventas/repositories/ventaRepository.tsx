@@ -5,10 +5,12 @@ export function getVentas(talonarioId: number) {
         id: number;
         talonario_id: number;
         comprador: string;
-        telefono: number;
+        telefono: string;
         estado_id: number;
         fecha: string;
         numeros: string;
+        estado: string;
+        precio: number;
     }>(
         `
         SELECT 
@@ -55,7 +57,7 @@ export function getNumerosOcupados(
 export function insertVenta(
     talonarioId: number,
     comprador: string,
-    telefono: number,
+    telefono: string,
     estadoId: number,
     fecha: string
 ) {
@@ -85,7 +87,7 @@ export function insertNumero(
 export function updateVenta(
     ventaId: number,
     comprador: string,
-    telefono: number,
+    telefono: string,
     estadoId: number
 ) {
     db.runSync(
@@ -194,7 +196,7 @@ export function getNumerosParaSorteo(talonarioId: number) {
         numero: number;
         venta_id: number;
         comprador: string;
-        telefono: number;
+        telefono: string;
     }>(
         `
         SELECT
@@ -249,7 +251,7 @@ export function getGanadoresSorteo(talonarioId: number) {
     return db.getAllSync<{
         numero: number;
         comprador: string;
-        telefono: number;
+        telefono: string;
         fecha: string;
     }>(
         `

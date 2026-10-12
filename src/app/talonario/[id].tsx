@@ -1,7 +1,9 @@
 import { Pressable, Text, TextInput, View } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Plus, Search, Settings } from "lucide-react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
+import ViewShot from "react-native-view-shot";
+import * as Sharing from "expo-sharing";
 import { alert } from "@/utils/alert";
 
 // UI
@@ -10,10 +12,14 @@ import DataTable from "@/components/ui/DataTable";
 import AppModal from "@/components/ui/AppModal";
 import RifaHeader from "@/components/ui/RifaHeader";
 import RifaOptionsMenu from "@/components/ui/RifaOptionsMenu";
+import TicketImage from "@/features/ventas/components/ticketImage";
 
-// FUNCTIONS
+// Services and repositories 
 import { getTalonarioById } from "@/features/talonarios/services/talonariosService";
-import { generarTicket } from "@/features/ventas/services/ticketService";
+import { getTalonarioFecha } from "@/features/ventas/repositories/ventaRepository";
+import TicketCapture from "@/features/ventas/components/ticketCapture";
+import { prepararTicket } from "@/features/ventas/services/ticketService";
+
 
 import {
     getVentas,
@@ -66,7 +72,7 @@ export default function TalonarioScreen() {
     return (
         <>
         <View className="bg-[#171A1F] flex-1 pt-4">
-            <RifaHeader talonario={talonario} />
+            <RifaHeader talonario={talonario ?? undefined} />
             <View className="mb-2 flex-row items-center gap-3 p-3 ">
                 <Pressable
                     disabled={finalizada}
@@ -86,11 +92,13 @@ export default function TalonarioScreen() {
                                             setVentas(getVentas(Number(id)));
 
                                             alert.success("Registrado", 100);
+                                            return true;
                                         } catch (error) {
                                             alert.error(
                                                 (error as Error).message,
                                                 100
                                             );
+                                            return false;
                                         }
                                     }}
                                 />
@@ -184,23 +192,35 @@ export default function TalonarioScreen() {
                                                     "Actualizacion hecha",
                                                     100
                                                 );
+                                                return true;
                                             } catch (error) {
                                                 alert.error(
                                                     (error as Error).message,
                                                     100
                                                 );
+                                                return false;
                                             }
                                         }}
                                     />
 
                                     <Pressable
-                                        onPress={() =>
-                                            generarTicket(
-                                                venta,
-                                                estados,
-                                                talonario.id
-                                            )
-                                        }
+                                        onPress={() => {
+                                            if (!talonario) return;
+
+                                            setModal({
+                                                title: "Ticket de venta",
+                                                content: (
+                                                    <TicketCapture
+                                                        ticket={prepararTicket(
+                                                            venta,
+                                                            estados,
+                                                            talonario.id,
+                                                            talonario.precio,
+                                                        )}
+                                                    />
+                                                ),
+                                            })
+                                        }}
                                         className="mt-3 rounded-xl bg-[#22C55E] py-4"
                                     >
                                         <Text className="text-center font-semibold text-white">

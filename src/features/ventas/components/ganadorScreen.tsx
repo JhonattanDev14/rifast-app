@@ -5,7 +5,7 @@ interface Props {
     ganador: {
         comprador: string;
         numero: number;
-        telefono: number;
+        telefono: string;
         venta_id: number;
     };
     onClose: () => void;
