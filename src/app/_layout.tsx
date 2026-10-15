@@ -8,6 +8,7 @@ import { useColorScheme } from 'react-native';
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import Toast from 'react-native-toast-message';
 import { alert } from '@/utils/alert';
+import '@/features/backup/config/googleSigInConfig';
 
 SplashScreen.preventAutoHideAsync();
 

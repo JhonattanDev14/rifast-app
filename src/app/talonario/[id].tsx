@@ -47,6 +47,7 @@ export default function TalonarioScreen() {
         title: string;
         content: React.ReactNode;
     } | null>(null);
+    const [estadoFiltro, setEstadoFiltro] = useState("Todos");
 
     useFocusEffect(
         useCallback(() => {
@@ -63,10 +64,15 @@ export default function TalonarioScreen() {
     const ventasFiltradas = ventas.filter((venta) => {
         const texto = busqueda.toLowerCase();
 
-        return (
+        const coincideBusqueda =
             venta.comprador.toLowerCase().includes(texto) ||
-            venta.numeros.toLowerCase().includes(texto)
-        );
+            venta.numeros.toLowerCase().includes(texto);
+
+        const coincideEstado =
+            estadoFiltro === "Todos" ||
+            String(venta.estado) === estadoFiltro;
+
+        return coincideBusqueda && coincideEstado;
     });
 
     return (
@@ -157,6 +163,49 @@ export default function TalonarioScreen() {
                     {modal?.content}
                 </AppModal>
             </View>
+
+            <View className="px-3 pb-3">
+                <Text className="mb-2 text-sm font-semibold text-gray-400">
+                    Filtrar por estado
+                </Text>
+
+            <View className="flex-row gap-2">
+                {[
+                    { nombre: "Todos", color: "#4F7CFF" },
+                    { nombre: "Apartado", color: "#4F7CFF" },
+                    { nombre: "Revisando", color: "#FFD166" },
+                    { nombre: "Validado", color: "#39FF88" },
+                ].map(({ nombre, color }) => {
+                    const seleccionado = estadoFiltro === nombre;
+
+                    return (
+                        <Pressable
+                            key={nombre}
+                            onPress={() => setEstadoFiltro(nombre)}
+                            style={{
+                                flex: 1,
+                                alignItems: "center",
+                                paddingVertical: 12,
+                                borderRadius: 12,
+                                borderWidth: 1,
+                                borderColor: seleccionado ? color : "#374151",
+                                backgroundColor: seleccionado ? `${color}25` : "#1E2229",
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    color: seleccionado ? color : "#9CA3AF",
+                                    fontSize: 11,
+                                    fontWeight: "700",
+                                }}
+                            >
+                                {nombre}
+                            </Text>
+                        </Pressable>
+                    );
+                })}
+            </View>
+        </View>
 
             <View className="flex-1">
                 <DataTable

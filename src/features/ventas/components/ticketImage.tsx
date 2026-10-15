@@ -275,7 +275,14 @@ export default function TicketImage({
               marginTop: 4,
             }}
           >
-            {fecha || "Sin fecha"}
+            {fecha
+              ? new Date(fecha).toLocaleDateString("es-CO", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  timeZone: "UTC",
+                })
+              : "Sin fecha"}
           </Text>
         </View>
 
