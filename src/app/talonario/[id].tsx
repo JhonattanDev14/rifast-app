@@ -19,6 +19,8 @@ import { getTalonarioById } from "@/features/talonarios/services/talonariosServi
 import { getTalonarioFecha } from "@/features/ventas/repositories/ventaRepository";
 import TicketCapture from "@/features/ventas/components/ticketCapture";
 import { prepararTicket } from "@/features/ventas/services/ticketService";
+import { useNumerosDisponibles } from "@/features/talonarios/hooks/useNumerosDisponibles";
+import AvailableNumbersImage from "@/features/talonarios/components/AvailableNumbersImage";
 
 
 import {
@@ -74,6 +76,7 @@ export default function TalonarioScreen() {
 
         return coincideBusqueda && coincideEstado;
     });
+    const numerosDisponibles = useNumerosDisponibles(Number(id));
 
     return (
         <>
@@ -88,6 +91,7 @@ export default function TalonarioScreen() {
                             content: (
                                 <CreateVentaForm
                                     disabled={finalizada}
+                                    talonarioId={Number(id)}
                                     venta={ventaSeleccionada}
                                     estados={estados}
                                     onSubmit={(data) => {
@@ -145,6 +149,19 @@ export default function TalonarioScreen() {
                                     onDrawPress={() => {
                                         router.push(`/talonario/sorteo/${id}`);
                                         setModal(null);
+                                    }}
+                                    onShareNumbersPress={() => {
+                                        setModal({
+                                            title: "Números disponibles",
+                                            content: (
+                                                <AvailableNumbersImage
+                                                    nombre={talonario?.nombre ?? "Mi rifa"}
+                                                    precio={talonario?.precio ?? 0}
+                                                    total={numerosDisponibles.length}
+                                                    disponibles={numerosDisponibles}
+                                                />
+                                            ),
+                                        });
                                     }}
                                 />
                             ),
@@ -224,6 +241,7 @@ export default function TalonarioScreen() {
                                 <View>
                                     <CreateVentaForm
                                         disabled={finalizada}
+                                        talonarioId={Number(id)}
                                         venta={venta}
                                         estados={estados}
                                         onSubmit={(data) => {

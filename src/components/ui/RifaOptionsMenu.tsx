@@ -1,17 +1,47 @@
 import { Pressable, Text, View } from "react-native";
-import { BarChart3, Dices, ChevronRight } from "lucide-react-native";
+import {
+  BarChart3,
+  Dices,
+  ChevronRight,
+  Image,
+} from "lucide-react-native";
 
 type Props = {
-    onStatsPress: () => void;
-    onDrawPress: () => void;
+  onStatsPress: () => void;
+  onDrawPress: () => void;
+  onShareNumbersPress: () => void;
 };
 
 export default function RifaOptionsMenu({
-    onStatsPress,
-    onDrawPress,
+  onStatsPress,
+  onDrawPress,
+  onShareNumbersPress,
 }: Props) {
     return (
         <View className="gap-3">
+            
+            {/* Compartir números disponibles */}
+            <Pressable
+            onPress={onShareNumbersPress}
+            className="flex-row items-center rounded-2xl border border-[#24583F] bg-[#151922] p-4"
+            >
+            <View className="h-11 w-11 items-center justify-center rounded-xl bg-[#173A2A]">
+                <Image size={22} color="#39FF88" />
+            </View>
+
+            <View className="ml-3 flex-1">
+                <Text className="text-base font-bold text-white">
+                Compartir números
+                </Text>
+
+                <Text className="mt-1 text-xs text-gray-500">
+                Genera una imagen con los números disponibles
+                </Text>
+            </View>
+
+            <ChevronRight size={20} color="#6B7280" />
+            </Pressable>
+
 
             {/* Estadísticas */}
             <Pressable
